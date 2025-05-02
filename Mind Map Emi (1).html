@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concept Map: Theravāda Texts (V17 - Final Data Refinement)</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style type="text/css">
+        /* Styles remain the same */
+        html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: Arial, sans-serif; }
+        #mynetwork { width: 100%; height: 100%; background-color: #2d2d2d; position: absolute; top: 0; left: 0; z-index: 0; }
+        #hover-info { position: fixed; bottom: 15px; right: 15px; background-color: rgba(45, 45, 45, 0.85); color: #f0f0f0; padding: 12px 15px; border-radius: 5px; max-width: 350px; max-height: 250px; overflow-y: auto; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.3); font-size: 0.9em; line-height: 1.4; opacity: 0; transition: opacity 0.2s ease-in-out; pointer-events: none; }
+        #hover-info.visible { opacity: 1; }
+        #menu-toggle { position: fixed; top: 15px; right: 15px; padding: 8px 12px; background-color: rgba(60, 60, 60, 0.8); color: white; border: none; border-radius: 5px; cursor: pointer; z-index: 3; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        #menu-toggle:hover { background-color: rgba(80, 80, 80, 0.9); }
+        #settings-menu { position: fixed; top: 0; right: 0; height: 100vh; width: 280px; background-color: #e9e9e9; box-shadow: -3px 0 10px rgba(0,0,0,0.2); transform: translateX(100%); transition: transform 0.3s ease-in-out; z-index: 2; box-sizing: border-box; overflow: hidden; color: #333; display: flex; flex-direction: column; }
+        #settings-menu.open { transform: translateX(0); }
+        .menu-tabs { display: flex; border-bottom: 1px solid #ccc; flex-shrink: 0; margin-bottom: 10px; }
+        .tab-button { flex-grow: 1; padding: 12px 10px; background-color: #d0d0d0; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 0.95em; text-align: center; transition: background-color 0.2s, border-color 0.2s; outline: none; }
+        .tab-button:hover { background-color: #c5c5c5; }
+        .tab-button.active { background-color: #e9e9e9; border-bottom: 3px solid #888; font-weight: bold; }
+        .tab-content { padding: 10px 20px 20px 20px; overflow-y: auto; flex-grow: 1; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        #settings-content h3, #info-content h3 { margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px; font-size: 1.2em; }
+        .setting-group { margin-bottom: 20px; }
+        .setting-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+        .setting-group input[type="range"], .setting-group input[type="number"], .setting-group input[type="color"], .setting-group select { width: 100%; box-sizing: border-box; margin-bottom: 5px; }
+        .setting-group input[type="color"] { height: 30px; padding: 2px; border: 1px solid #ccc; cursor: pointer; }
+        .color-setting { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+        .color-setting label { margin-bottom: 0; margin-right: 10px; flex-grow: 1; font-weight: normal; }
+        .color-setting input[type="color"] { width: 60px; height: 25px; flex-shrink: 0; }
+        #group-legend { margin-top: 25px; border-top: 1px solid #ccc; padding-top: 15px; }
+        #group-legend h4 { margin-top: 0; margin-bottom: 10px; font-size: 1em; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 8px; }
+        .legend-shape { width: 18px; height: 18px; margin-right: 8px; border: 2px solid black; display: inline-block; flex-shrink: 0; box-sizing: border-box;}
+        .legend-text { font-size: 0.9em; }
+        .legend-argument-shape { background-color: #faccff; border-color: #e6a3ff; width: 18px; height: 18px; border-radius: 0; transform: rotate(20deg); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+        .legend-concept_theravada-shape { background-color: #bae1ff; border-color: #8fc9ff; border-radius: 50%; width: 20px; height: 20px; }
+        .legend-concept_colonial-shape { background-color: #ffddba; border-color: #ffc88f; width: 20px; height: 18px; border-radius: 3px;}
+        .legend-scholar_cited-shape { background-color: #ffb3ba; border-color: #ff8f9a; border-radius: 9px; width: 22px;}
+        .legend-scholar_critiqued-shape { background-color: #ff6961; border-color: #e03c31; border-radius: 9px; width: 22px;}
+        .legend-text_example-shape { background-color: #ffffba; border-color: #ffff8f; border-radius: 50%; width: 16px; height: 16px; }
+        .legend-practice-shape { background-color: #baffc9; border-color: #8fffac; width: 20px; height: 18px; border-radius: 3px;}
+        .legend-methodology-shape { background-color: #add8e6; border-color: #87ceeb; width: 18px; height: 18px; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); border-radius: 0; }
+        #info-content h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.2em; }
+        #info-content p, #info-content ul { font-size: 0.9em; line-height: 1.4; color: #333; }
+        #info-content ul { padding-left: 20px; margin-top: 10px; }
+        #info-content li { margin-bottom: 5px; }
+        #detail-sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 300px; background-color: rgba(60, 60, 60, 0.9); color: #f0f0f0; box-shadow: 3px 0 10px rgba(0,0,0,0.3); transform: translateX(-100%); transition: transform 0.3s ease-in-out; z-index: 2; padding: 20px; padding-top: 60px; box-sizing: border-box; overflow-y: auto; }
+        #detail-sidebar.open { transform: translateX(0); }
+        #detail-sidebar h3 { margin-top: 0; margin-bottom: 10px; font-size: 1.3em; border-bottom: 1px solid #888; padding-bottom: 8px; }
+        #detail-sidebar p { font-size: 0.95em; line-height: 1.5; margin-bottom: 20px; }
+        #detail-sidebar h4 { margin-top: 20px; margin-bottom: 8px; font-size: 1em; color: #ccc; border-bottom: 1px dotted #666; padding-bottom: 4px; }
+        #detail-sidebar ul { list-style: none; padding: 0; margin: 0; }
+        #detail-sidebar li { margin-bottom: 5px; font-size: 0.9em; }
+        #detail-sidebar li a { color: #a0dcff; text-decoration: none; cursor: pointer; }
+        #detail-sidebar li a:hover { text-decoration: underline; }
+        #detail-sidebar .edge-label { font-style: italic; color: #aaa; font-size: 0.85em; margin-left: 5px; }
+        .vis-tooltip { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="mynetwork"></div>
+
+<div id="hover-info"></div> <div id="detail-sidebar">
+    </div>
+
+<button id="menu-toggle">Menu</button>
+
+<div id="settings-menu">
+    <div class="menu-tabs">
+        <button class="tab-button active" data-tab="settings-content">Settings</button>
+        <button class="tab-button" data-tab="info-content">Info</button>
+    </div>
+
+    <div class="tab-content">
+        <div id="settings-content" class="tab-pane active">
+             <h3>Graph Settings</h3>
+             <div class="setting-group"> <label for="node-font-size">Node Font Size:</label> <input type="range" id="node-font-size" min="8" max="24" value="13" step="1"> </div>
+             <div class="setting-group"> <label for="edge-font-size">Edge Font Size:</label> <input type="range" id="edge-font-size" min="6" max="18" value="11" step="1"> </div>
+             <div class="setting-group color-setting"> <label for="edge-font-color">Edge Font Color:</label> <input type="color" id="edge-font-color" value="#ffffff"> </div>
+             <div class="setting-group">
+                 <label for="group-select">Node Group Colors:</label>
+                 <select id="group-select">
+                     <option value="argument">Argument</option>
+                     <option value="concept_theravada">Concept (Theravāda)</option>
+                     <option value="concept_colonial">Concept (Colonial/Critique)</option>
+                     <option value="scholar_cited">Scholar (Cited)</option>
+                     <option value="scholar_critiqued">Scholar (Critiqued)</option>
+                     <option value="text_example">Text/Example</option>
+                     <option value="practice">Practice</option>
+                     <option value="methodology">Methodology</option>
+                 </select>
+                 <div class="color-setting"> <label for="group-bg-color">Background:</label> <input type="color" id="group-bg-color"> </div>
+                 <div class="color-setting"> <label for="group-border-color">Border:</label> <input type="color" id="group-border-color"> </div>
+                 <div class="color-setting"> <label for="group-font-color">Font Color:</label> <input type="color" id="group-font-color"> </div>
+             </div>
+             <div id="group-legend">
+                 <h4>Node Legend</h4>
+                 <div class="legend-item"> <span class="legend-shape legend-argument-shape"></span> <span class="legend-text">Argument</span> </div>
+                 <div class="legend-item"> <span class="legend-shape legend-concept_theravada-shape"></span> <span class="legend-text">Concept (Theravāda)</span> </div>
+                 <div class="legend-item"> <span class="legend-shape legend-concept_colonial-shape"></span> <span class="legend-text">Concept (Colonial/Critique)</span> </div>
+                 <div class="legend-item"> <span class="legend-shape legend-scholar_cited-shape"></span> <span class="legend-text">Scholar (Cited)</span> </div>
+                 <div class="legend-item"> <span class="legend-shape legend-scholar_critiqued-shape"></span> <span class="legend-text">Scholar (Critiqued)</span> </div>
+                 <div class="legend-item"> <span class="legend-shape legend-text_example-shape"></span> <span class="legend-text">Text/Example</span> </div>
+                 <div class="legend-item"> <span class="legend-shape legend-practice-shape"></span> <span class="legend-text">Practice</span> </div>
+                 <div class="legend-item"> <span class="legend-shape legend-methodology-shape"></span> <span class="legend-text">Methodology</span> </div>
+             </div>
+        </div>
+
+        <div id="info-content" class="tab-pane">
+            <h3>Concept Map: Theravāda Texts & Colonial Taxonomies</h3>
+            <p>
+                This interactive graph explores connections from the paper on Theravāda Buddhism and colonial frameworks.
+            </p>
+            <h4>How to Use:</h4>
+            <ul>
+                <li><strong>Explore:</strong> Zoom (scroll), Pan (drag background).</li>
+                <li><strong>Focus:</strong> Click a node to highlight connections & show details in the left sidebar. Click background to unfocus.</li>
+                <li><strong>Details:</strong> Hover over nodes/edges for info (bottom-right panel).</li>
+                <li><strong>Arrange:</strong> Drag nodes to position (they fix).</li>
+                <li><strong>Adjust:</strong> Double-click a node to un-fix (allows brief adjustment).</li>
+                <li><strong>Customize:</strong> Use the "Settings" tab for fonts, colors & legend.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    // --- FINAL REVISED Raw Data (Nodes) ---
+    const rawNodes = [
+        // Arguments / Themes (Purple Star)
+        { id: 'main_arg', label: 'Main Argument:\nTexts Transcend Colonial Binaries', group: 'argument', description: 'Buddhist texts function as interdependent processes shaped by Theravāda epistemology (pratītyasamutpāda, anicca, anattā), transcending rigid colonial/Western binaries (oral/written, sacred/profane, doctrine/ritual).' },
+        { id: 'decol_method_arg', label: 'Argument:\nDecolonized Methodology Needed', group: 'argument', description: 'Proposes prioritizing how texts *function* in context over static representation, recentering Theravāda epistemology to counter colonial legacies.' },
+        { id: 'theme_continuum', label: 'Theme: Oral-Written Continuum', group: 'argument', description: 'Orality and writing function symbiotically, shaped by interdependence (pratītyasamutpāda), challenging colonial hierarchy.' },
+        { id: 'theme_dhammakaya', label: 'Theme: Texts as Dhammakāya', group: 'argument', description: 'Manuscripts are sacralized as dhammakāya (truth-body), ontologically equivalent to relics (sarīrika), used in merit-making, challenging colonial objectification.' },
+        { id: 'theme_performative', label: 'Theme: Performative Texts', group: 'argument', description: 'Texts transform doctrine into embodied ethical practice through ritual performance (chanting, dramatization, visualization), cultivating saṃvega/pasāda.' },
+        { id: 'theme_hybridity', label: 'Theme: Adaptive Canons & Hybridity', group: 'argument', description: 'Hybrid texts (bilingual, vernacular commentaries, print) embody skillful means (upāya-kosalla), ensuring continuity and resisting colonial norms of purity.' },
+        { id: 'theme_legacy', label: 'Theme: Colonial Legacy & Resistance', group: 'argument', description: 'Colonial epistemology reified texts, imposed binaries, and severed them from lived contexts; Theravāda practices and hybridity represent forms of resistance.' },
+
+        // Concepts (Theravāda - Blue Dot)
+        { id: 'pratitya', label: 'Pratītyasamutpāda\n(Dependent Origination)', group: 'concept_theravada', description: 'Core Buddhist doctrine: all phenomena arise interdependently based on causes and conditions. Shapes textual function, orality/writing, hybridity.' },
+        { id: 'anicca', label: 'Anicca\n(Impermanence)', group: 'concept_theravada', description: 'Mark of existence; texts, like all conditioned things, are impermanent. Decay affirms sacrality through use/merit, contrasts colonial preservation.' },
+        { id: 'anatta', label: 'Anattā\n(Non-Self)', group: 'concept_theravada', description: 'Mark of existence; phenomena lack inherent essence. Applies to texts (Milindapañha chariot simile), challenges fixed colonial categories.' },
+        { id: 'dhammakaya', label: 'Dhammakāya\n(Truth-Body)', group: 'concept_theravada', description: 'Texts as embodiments of the Dhamma, ontologically equivalent to relics (sarīrika), objects of veneration and merit-making.' },
+        { id: 'punna', label: 'Puñña\n(Merit)', group: 'concept_theravada', description: 'Generated through ethical actions (kāya-kamma), including embodied engagement with texts (copying, chanting, venerating).' },
+        { id: 'sankhata', label: 'Saṅkhata\n(Conditioned Phenomena)', group: 'concept_theravada', description: 'Things arising from causes/conditions (subject to tilakkhaṇa). Texts are viewed as saṅkhata, explaining their impermanence and adaptability.' },
+        { id: 'tilakkhana', label: 'Tilakkhaṇa\n(Three Marks of Existence)', group: 'concept_theravada', description: 'Anicca (impermanence), Dukkha (unsatisfactoriness), Anattā (non-self). Ground Theravāda epistemology, contrast with colonial views.' },
+        { id: 'ppp', label: 'Pariyatti, Paṭipatti,\nPaṭivedha', group: 'concept_theravada', description: 'Study, Practice, Realization. Mutually reinforcing processes reflecting interdependence, not separate stages.' },
+        { id: 'samvega_pasada', label: 'Saṃvega & Pasāda', group: 'concept_theravada', description: 'Affective responses: agitated urgency & serene clarity. Cultivated by performative texts like Mahāvaṃsa & Jātakas.' },
+        { id: 'upaya', label: 'Upāya-kosalla\n(Skillful Means)', group: 'concept_theravada', description: 'Adapting teachings/methods effectively for context. Embodied in textual hybridity and vernacularization.' },
+        { id: 'pali_imaginaire', label: 'Pali Imaginaire (Collins)', group: 'concept_theravada', description: 'Concept by Steven Collins: A stable core (Pali) enabling vernacular creativity and adaptation, resisting rigid standardization.' },
+        { id: 'kāya-kamma', label: 'Kāya-kamma\n(Bodily Action)', group: 'concept_theravada', description: 'Physical actions that generate merit (puñña), including scribal labor and text veneration.' },
+        { id: 'sarīrika', label: 'Sarīrika\n(Physical Relics)', group: 'concept_theravada', description: 'Bodily remains of the Buddha or enlightened beings, considered functionally interchangeable with Dhammakāya texts.' },
+
+        // Concepts (Colonial/Critique - Orange Box)
+        { id: 'col_taxonomies', label: 'Colonial Taxonomies/Binaries', group: 'concept_colonial', description: 'Rigid frameworks (oral/written, sacred/profane, doctrine/ritual) imposed on Buddhist texts, rooted in Protestant/Enlightenment views.' },
+        { id: 'epist_violence', label: 'Epistemic Violence', group: 'concept_colonial', description: 'Colonial dismissal/misrepresentation of Theravāda practices & textual functions (e.g., reducing Jātakas to folklore, ignoring Dhammakāya).' },
+        { id: 'static_artifact', label: 'Texts as Static Artifacts', group: 'concept_colonial', description: 'Colonial view of texts as objects to be preserved/edited, severed from lived ritual/pedagogical contexts and notions of Anicca.' },
+        { id: 'protestant_buddhism', label: 'Protestant Buddhism (Blackburn)', group: 'concept_colonial', description: 'Term for modern forms of Buddhism influenced by Protestant values, emphasizing textual literacy, doctrine over ritual, individual study.' },
+        { id: 'salvage_mentality', label: 'Salvage Mentality (Lopez)', group: 'concept_colonial', description: 'Colonial archival focus on "saving" texts from decay/use, prioritizing preservation over living practice and ritual efficacy (Anicca).' },
+        { id: 'textual_fundamentalism', label: 'Textual Fundamentalism (Blackburn)', group: 'concept_colonial', description: 'Equating authenticity with philological exactitude, often omitting ritual/pedagogical annotations from modern editions.' },
+        { id: 'authenticity_purity', label: 'Authenticity as Purity', group: 'concept_colonial', description: 'Colonial equation of authenticity with textual antiquity or linguistic purity, misreading hybridity (Upāya) as corruption.' },
+        { id: 'pts', label: 'Pali Text Society (PTS)', group: 'concept_colonial', description: 'Organization co-founded by T.W. Rhys Davids, influential in shaping colonial-era textual scholarship and preservation approaches.' }, // Added
+
+         // Scholars (Cited - Pink Ellipse)
+        { id: 'blackburn', label: 'Anne Blackburn', group: 'scholar_cited', description: 'Concepts: "Protestant Buddhism", "Practical Canon", "Textual Fundamentalism". Analyzes colonial Lanka, sannayas, Subhadra omission.' },
+        { id: 'veidlinger', label: 'Daniel Veidlinger', group: 'scholar_cited', description: 'Work on orality/writing, textual transmission (N. Thailand), Vinaya silence, colophons, merit-making, Milindapañha, Sāsanavaṃsa.' },
+        { id: 'appleton', label: 'Naomi Appleton', group: 'scholar_cited', description: 'Work on Jātakas, texts as relics (dhammakāya), paritta, Vessantara Jātaka performance, Cariyāpiṭaka, Jātakapota.' },
+        { id: 'lopez', label: 'Donald Lopez', group: 'scholar_cited', description: 'Editor of "Curators of the Buddha". Concept: "Salvage Mentality".' },
+        { id: 'swearer', label: 'Donald Swearer', group: 'scholar_cited', description: 'Work on SE Asian Buddhism, sitra sannayas in Lanka, Sārathadīpanī.' },
+        { id: 'thompson', label: 'Ashley Thompson', group: 'scholar_cited', description: 'Work on early Theravāda Cambodia, bilingual inscriptions ("cosmopolitizing vernacular"), British Library Endangered Archives Programme.' },
+        { id: 'scheible', label: 'Kristin Scheible', group: 'scholar_cited', description: 'Work on Mahāvaṃsa\'s literary aims, performative function, saṃvega/pasāda.' },
+        { id: 'collins', label: 'Steven Collins', group: 'scholar_cited', description: 'Work on Theravāda reimagined, Pali imaginaire, Khuddakapāṭha memorization, Mahāparinibbāna Sutta recitation.' },
+        { id: 'hikkaduve', label: 'Hikkaduve Thera', group: 'scholar_cited', description: 'Sri Lankan reformer monk who used print media (Sinhala Bauddhaya) for anti-colonial resistance and defense against Oldenberg.' },
+
+         // Scholars (Critiqued - Red Ellipse)
+        { id: 'rhys_davids', label: 'T.W. Rhys Davids', group: 'scholar_critiqued', description: 'Colonial scholar, co-founder Pali Text Society. Reduced texts to artifacts (Static Artifact), dismissed Jātakas as "folklore" (Epistemic Violence).' },
+        { id: 'poussin', label: 'Louis de la Vallée Poussin', group: 'scholar_critiqued', description: 'Colonial scholar who reduced texts to static artifacts.' },
+        { id: 'falk_hinuber', label: 'Falk & von Hinüber', group: 'scholar_critiqued', description: 'Misread textual adaptability (Hybridity) as "primitive" orality.' },
+        { id: 'gogerly', label: 'Daniel Gogerly', group: 'scholar_critiqued', description: 'Missionary who used Pali texts (Kristiyāni Prajñāpti) to critique Buddhist practice (Text Veneration), divorcing doctrine from ritual.' },
+        { id: 'turnour', label: 'George Turnour', group: 'scholar_critiqued', description: 'Colonial editor who reduced Mahāvaṃsa to a historical "charter", erasing affective power (Saṃvega/Pasāda).' },
+        { id: 'oldenberg', label: 'Hermann Oldenberg', group: 'scholar_critiqued', description: 'Derided ritual uses of texts (e.g., Mahāparinibbāna Sutta recitation, Paritta) as "corruptions". Critiqued by Hikkaduve Thera.' },
+        { id: 'cowell_rouse', label: 'Cowell & Rouse', group: 'scholar_critiqued', description: 'Translators of Jātakas who stripped performative elements, reducing them to "folklore".' },
+
+        // Texts & Examples (Yellow Dot)
+        { id: 'jatakas', label: 'Jātakas', group: 'text_example', description: 'Stories of Buddha\'s former births. Used performatively (Vessantara), visually (Ajanta), cultivate saṃvega/pasāda, object of veneration (Jātakapota), dismissed by Rhys Davids/Cowell & Rouse.' },
+        { id: 'vinaya', label: 'Vinaya Piṭaka', group: 'text_example', description: 'Monastic disciplinary code. Its silence on writing tools illustrates oral/written continuum.' },
+        { id: 'mahāvamsa', label: 'Mahāvaṃsa', group: 'text_example', description: 'Sri Lankan chronicle. Performative (recited), provokes saṃvega/pasāda, source on text preservation (with relics), reduced by Turnour.' },
+        { id: 'sannayas', label: 'Sitra Sannayas', group: 'text_example', description: 'Sinhala vernacular commentaries (e.g., Sārathadīpanī). Hybrid (oral/written), pedagogical tools ("practical canon"), democratized access, embody Upāya.' },
+        { id: 'milindapanha', label: 'Milindapañha', group: 'text_example', description: 'Questions of King Milinda. Chariot simile illustrates Anattā, hybrid form, popular despite exclusion, framing excised by translators.' },
+        { id: 'tipitaka', label: 'Tipiṭaka (Pali Canon)', group: 'text_example', description: 'Object of veneration (Saddhammasaṅgaha), copying as merit, vernacular access via sannayas, subject of Siamese reforms.' },
+        { id: 'bilingual_insc', label: 'Bilingual Inscriptions', group: 'text_example', description: 'Example of hybridity (Khmer-Pali), merging liturgical authority & local needs, "cosmopolitizing vernacular" (Thompson).' },
+        { id: 'colophons', label: 'Manuscript Colophons', group: 'text_example', description: 'Inscriptions by scribes. Vow to support teachings, equate copying with merit/knowledge, illustrate impermanence (Anicca).' },
+        { id: 'mps', label: 'Mahāparinibbāna Sutta', group: 'text_example', description: 'Discourse on Buddha\'s final days. Used in funeral recitations (enacting Anicca), monastic edits for ritual coherence (Subhadra omission), critiqued by Oldenberg.' },
+        { id: 'saddhammasangaha', label: 'Saddhammasaṅgaha', group: 'text_example', description: 'Text equating veneration of each letter (akkhara) of Tipiṭaka to worshiping a Buddha image (Dhammakāya).' },
+        { id: 'khuddakapatha', label: 'Khuddakapāṭha', group: 'text_example', description: 'Minor collection often memorized using tactile tracing alongside recitation (Oral/Written interaction).' },
+        { id: 'kristiyani_prajnapti', label: 'Kristiyāni Prajñāpti', group: 'text_example', description: 'Text by Gogerly used to weaponize Pali doctrine against Buddhist practice.' },
+        { id: 'vessantara_jataka', label: 'Vessantara Jātaka', group: 'text_example', description: 'Most famous Jātaka, widely performed (festivals, chanting, kavi/sepha) as communal Bhāvanā.' },
+        { id: 'ajanta_murals', label: 'Ajanta Murals', group: 'text_example', description: 'Visual representations of Jātakas functioning as "visual recitations" and aids for Buddhānussati meditation.' },
+        { id: 'cariyapitaka', label: 'Cariyāpiṭaka', group: 'text_example', description: 'Collection linking Jātakas to Pāramīs, used as meditative guide despite exclusion from some canons (Analyzes Exclusions).' },
+        { id: 'subhadra_omission', label: 'Subhadra Omission', group: 'text_example', description: 'Example of monastic editing of Mahāparinibbāna Sutta for ritual coherence, prioritizing function over historical fidelity (Analyzes Exclusions).' },
+        { id: 'sinhala_bauddhaya', label: 'Sinhala Bauddhaya', group: 'text_example', description: 'Bilingual print pamphlet by Hikkaduve Thera using Jātakas for anti-colonial resistance.' },
+        { id: 'siamese_reforms', label: 'Siamese Tipiṭaka Reforms', group: 'text_example', description: 'Colonial-era standardization effort whose imported editions were selectively integrated, showing adaptive resilience (Pali Imaginaire).' },
+        { id: 'sāsanavaṃsa', label: 'Sāsanavaṃsa', group: 'text_example', description: 'Chronicle presenting writing as pragmatic response to fears of spiritual decline (Veidlinger).' },
+        { id: 'jātakapota', label: 'Jātakapota', group: 'text_example', description: 'Specific Jātaka manuscript venerated in Sri Lankan temples (Appleton).' },
+        { id: 'sārathadīpanī', label: 'Sārathadīpanī', group: 'text_example', description: 'Example Sitra Sannaya recasting Mahāparinibbāna Sutta for laypeople with local metaphors (Swearer).' },
+
+         // Practices (Green Box)
+        { id: 'oral_written', label: 'Oral/Written Interaction', group: 'practice', description: 'Symbiotic continuum, not binary. Writing as pragmatic response (Sāsanavaṃsa), tracing text while memorizing (Khuddakapāṭha).' },
+        { id: 'merit_making', label: 'Merit-Making (Puñña) via Texts', group: 'practice', description: 'Generated by copying (Colophons, Tipiṭaka), chanting (Paritta, Mahāparinibbāna Sutta), venerating texts (Jātakapota); bodily action (kāya-kamma).' },
+        { id: 'text_veneration', label: 'Text Veneration (as Dhammakāya)', group: 'practice', description: 'Treating texts like relics (e.g., Jātakapota), offering flowers/incense, equating letter veneration (Saddhammasaṅgaha).' },
+        { id: 'performative_recitation', label: 'Performative Recitation/Chanting', group: 'practice', description: 'Public (Mahāvaṃsa), ritual (Paritta, Mahāparinibbāna Sutta funerals), vernacular (Thai sepha), generating affect (saṃvega/pasāda).' },
+        { id: 'visual_engagement', label: 'Visual Engagement', group: 'practice', description: 'Jātaka murals (Ajanta) as "visual recitations," aids for meditation (buddhānussati).' },
+        { id: 'vernacularization', label: 'Vernacularization & Hybridity', group: 'practice', description: 'Use of commentaries (Sannayas, Sārathadīpanī), bilingual texts (Inscriptions), print (Sinhala Bauddhaya) to make Dhamma accessible & resilient.' },
+        { id: 'archival_critique', label: 'Critique of Colonial Archiving', group: 'practice', description: 'Colonial preservation (Salvage Mentality) severed texts from ritual, ignored impermanence (Anicca) vs. Theravāda view of decay affirming sacrality.' },
+        { id: 'paritta', label: 'Paritta Chanting', group: 'practice', description: 'Ritual chanting of specific texts for protection, embodying text\'s power, dismissed by some colonial scholars (Oldenberg).' },
+        { id: 'bl_eap', label: 'British Library\nEndangered Archives', group: 'practice', description: 'Example of potentially more decolonized archival practice documenting Cambodian palm-leaf manuscripts in situ—reciting styles, ritual contexts, ethical interpretations—honoring texts as living practices (Thompson).' },
+        { id: 'bhāvanā', label: 'Bhāvanā\n(Meditative Cultivation)', group: 'practice', description: 'Mental/ethical development, cultivated communally through performative texts (Vessantara) and individually (Cariyāpiṭaka).' },
+        { id: 'buddhānussati', label: 'Buddhānussati\n(Recollection of Buddha)', group: 'practice', description: 'Meditative practice aided by visual engagement (Ajanta murals) and Jātaka contemplation (Vimuttimagga reference).' },
+
+         // Methodology (Cyan Triangle)
+        { id: 'prioritize_function', label: 'Prioritize Function over Representation', group: 'methodology', description: 'Core of proposed decolonized approach: focus on how texts *work* in context (ritual, pedagogy, affect).' },
+        { id: 'recenter_theravada', label: 'Recenter Theravāda Epistemology', group: 'methodology', description: 'Ground analysis in Buddhist concepts (Pratītyasamutpāda, Tilakkhaṇa, Dhammakāya, Upāya) not external binaries.' },
+        { id: 'analyze_exclusions', label: 'Analyze Exclusions/Absences', group: 'methodology', description: 'What canons or editions omit reveals processes of formation and priorities (e.g., Subhadra story, Cariyāpiṭaka).' },
+        { id: 'engage_lived_practice', label: 'Engage Lived Practice', group: 'methodology', description: 'Look beyond text to annotations, recitation styles, ritual use, colophons, visual culture, non-Western voices (Hikkaduve, Thai monks).' },
+        { id: 'reject_purity', label: 'Reject "Purity" Fetish', group: 'methodology', description: 'Recognize hybridity and adaptation (vernacularization, bilingualism) as strength and enactment of Dhamma (Upāya), not corruption.' }
+    ];
+    const processedNodes = rawNodes.map(node => { if (node.title) { node.description = node.title; node.title = undefined; } return node; });
+    var nodes = new vis.DataSet(processedNodes);
+
+    // --- Raw Edges Data (Refined Connections) ---
+    const rawEdges = [
+        // Main Argument Connections
+        { from: 'main_arg', to: 'col_taxonomies', label: 'critiques/transcends', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'main_arg', to: 'pratitya', label: 'shaped by', arrows: 'to' },
+        { from: 'main_arg', to: 'anicca', label: 'shaped by', arrows: 'to' },
+        { from: 'main_arg', to: 'anatta', label: 'shaped by', arrows: 'to' },
+        { from: 'main_arg', to: 'decol_method_arg', label: 'implies', arrows: 'to' },
+        { from: 'main_arg', to: 'theme_continuum', label: 'supported by theme' }, { from: 'main_arg', to: 'theme_dhammakaya', label: 'supported by theme' }, { from: 'main_arg', to: 'theme_performative', label: 'supported by theme' }, { from: 'main_arg', to: 'theme_hybridity', label: 'supported by theme' }, { from: 'main_arg', to: 'theme_legacy', label: 'context for/addresses' },
+
+        // Colonial Concepts & Actions
+        { from: 'col_taxonomies', to: 'epist_violence', label: 'leads to', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'col_taxonomies', to: 'static_artifact', label: 'treats texts as', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'col_taxonomies', to: 'oral_written', label: 'imposes binary on', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'col_taxonomies', to: 'protestant_buddhism', label: 'linked to', arrows: 'to' },
+        { from: 'col_taxonomies', to: 'authenticity_purity', label: 'imposes idea of', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'salvage_mentality', to: 'static_artifact', label: 'reinforces view of', arrows: 'to' },
+        { from: 'salvage_mentality', to: 'archival_critique', label: 'critiqued by', arrows: 'from' },
+        { from: 'salvage_mentality', to: 'anicca', label: 'ignores/opposes', color: { color: '#ff6961'} },
+        { from: 'salvage_mentality', to: 'text_veneration', label: 'ignores/severs', color: { color: '#ff6961'} },
+        { from: 'textual_fundamentalism', to: 'authenticity_purity', label: 'related to', arrows: 'to' },
+        { from: 'textual_fundamentalism', to: 'engage_lived_practice', label: 'opposes', color: { color: '#ff6961'} }, // Omits annotations etc.
+        { from: 'pts', to: 'rhys_davids', label: 'co-founded by'}, { from: 'pts', to: 'static_artifact', label: 'promoted view'}, { from: 'pts', to: 'salvage_mentality', label: 'related to'}, // Added PTS links
+
+        // Critiqued Scholars & Actions
+        { from: 'rhys_davids', to: 'static_artifact', label: 'promoted view', arrows: 'to' }, { from: 'poussin', to: 'static_artifact', label: 'promoted view', arrows: 'to' },
+        { from: 'rhys_davids', to: 'jatakas', label: 'dismissed as "folklore"', arrows: 'to', color: { color: '#ff6961'} }, { from: 'rhys_davids', to: 'pts', label: 'co-founded'},
+        { from: 'cowell_rouse', to: 'jatakas', label: 'translated reductively', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'falk_hinuber', to: 'theme_continuum', label: 'misread adaptability', arrows: 'to', color: { color: '#ff6961'} }, { from: 'falk_hinuber', to: 'paritta', label: 'dismissed'},
+        { from: 'gogerly', to: 'text_veneration', label: 'critiqued practice using', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'gogerly', to: 'kristiyani_prajnapti', label: 'authored', arrows: 'to'},
+        { from: 'turnour', to: 'mahāvamsa', label: 'reduced/edited', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'turnour', to: 'samvega_pasada', label: 'erased affective power', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'oldenberg', to: 'performative_recitation', label: 'derided as "corruption"', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'oldenberg', to: 'paritta', label: 'derided', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'oldenberg', to: 'mps', label: 'derided ritual use of', arrows: 'to', color: { color: '#ff6961'} },
+        { from: 'oldenberg', to: 'hikkaduve', label: 'critiqued by', arrows: 'from', color: { color: '#77dd77'} },
+
+        // Theravāda Concepts & Connections
+        { from: 'pratitya', to: 'anicca', label: 'implies' }, { from: 'pratitya', to: 'anatta', label: 'implies' }, { from: 'pratitya', to: 'sankhata', label: 'explains' },
+        { from: 'pratitya', to: 'theme_continuum', label: 'shapes', arrows: 'to' }, { from: 'pratitya', to: 'theme_hybridity', label: 'enables', arrows: 'to' }, { from: 'pratitya', to: 'col_taxonomies', label: 'counters', color: { color: '#77dd77'} }, // Added counter link
+        { from: 'anicca', to: 'sankhata', label: 'defines' }, { from: 'anicca', to: 'colophons', label: 'illustrated by decay & vow', arrows: 'from'}, { from: 'anicca', to: 'archival_critique', label: 'central to', arrows: 'to'}, { from: 'anicca', to: 'theme_hybridity', label: 'enables', arrows: 'to'}, { from: 'anicca', to: 'static_artifact', label: 'counters', color: { color: '#77dd77'} }, // Added counter link
+        { from: 'anatta', to: 'sankhata', label: 'defines' }, { from: 'anatta', to: 'milindapanha', label: 'illustrated by chariot simile', arrows: 'from'}, { from: 'anatta', to: 'static_artifact', label: 'counters', color: { color: '#77dd77'} }, // Added counter link
+        { from: 'tilakkhana', to: 'anicca', label: 'includes' }, { from: 'tilakkhana', to: 'anatta', label: 'includes' }, { from: 'tilakkhana', to: 'recenter_theravada', label: 'grounds', arrows: 'to'},
+        { from: 'dhammakaya', to: 'text_veneration', label: 'basis for', arrows: 'to' }, { from: 'dhammakaya', to: 'theme_dhammakaya', label: 'central to', arrows: 'to' }, { from: 'dhammakaya', to: 'punna', label: 'enables through veneration'}, { from: 'dhammakaya', to: 'sarīrika', label: 'equivalent to'},
+        { from: 'punna', to: 'merit_making', label: 'is', arrows: 'to' }, { from: 'punna', to: 'colophons', label: 'generated by copying', arrows: 'from'}, { from: 'punna', to: 'kāya-kamma', label: 'achieved via'},
+        { from: 'ppp', to: 'oral_written', label: 'reflects interdependence', arrows: 'from' }, { from: 'ppp', to: 'prioritize_function', label: 'informs', arrows: 'to' }, { from: 'ppp', to: 'theme_continuum', label: 'related to'}, // Added
+        { from: 'samvega_pasada', to: 'performative_recitation', label: 'cultivated by', arrows: 'from' }, { from: 'samvega_pasada', to: 'mahāvamsa', label: 'provoked by', arrows: 'from' }, { from: 'samvega_pasada', to: 'jatakas', label: 'cultivated by', arrows: 'from' }, { from: 'samvega_pasada', to: 'theme_performative', label: 'key effect of', arrows: 'to'},
+        { from: 'upaya', to: 'theme_hybridity', label: 'explains/embodies', arrows: 'to'}, { from: 'upaya', to: 'vernacularization', label: 'motivates', arrows: 'to'}, { from: 'upaya', to: 'authenticity_purity', label: 'counters', color: { color: '#77dd77'} }, // Added counter link
+        { from: 'kāya-kamma', to: 'merit_making', label: 'generates', arrows: 'to'}, { from: 'kāya-kamma', to: 'text_veneration', label: 'includes'},
+
+         // Practices & Examples linked to Themes
+        { from: 'theme_continuum', to: 'oral_written', label: 'explores' }, { from: 'theme_continuum', to: 'vinaya', label: 'example: silence' }, { from: 'theme_continuum', to: 'sannayas', label: 'example: hybrid use' }, { from: 'theme_continuum', to: 'khuddakapatha', label: 'example: tracing'}, { from: 'theme_continuum', to: 'ppp', label: 'reflects'}, { from: 'theme_continuum', to: 'pratitya', label: 'shaped by'}, { from: 'theme_continuum', to: 'sāsanavaṃsa', label: 'example: pragmatic writing'},
+        { from: 'theme_dhammakaya', to: 'dhammakaya', label: 'explores' }, { from: 'theme_dhammakaya', to: 'text_veneration', label: 'example' }, { from: 'theme_dhammakaya', to: 'merit_making', label: 'related practice' }, { from: 'theme_dhammakaya', to: 'colophons', label: 'example: scribal merit' }, { from: 'theme_dhammakaya', to: 'saddhammasangaha', label: 'example: letter veneration'}, { from: 'theme_dhammakaya', to: 'jātakapota', label: 'example: veneration'}, { from: 'theme_dhammakaya', to: 'anicca', label: 'interacts with'}, { from: 'theme_dhammakaya', to: 'sarīrika', label: 'equated with'},
+        { from: 'theme_performative', to: 'performative_recitation', label: 'explores' }, { from: 'theme_performative', to: 'visual_engagement', label: 'explores' }, { from: 'theme_performative', to: 'mahāvamsa', label: 'example: recitation' }, { from: 'theme_performative', to: 'vessantara_jataka', label: 'example: festival' }, { from: 'theme_performative', to: 'ajanta_murals', label: 'example: visual'}, { from: 'theme_performative', to: 'paritta', label: 'example: ritual chant'}, { from: 'theme_performative', to: 'mps', label: 'example: funeral use'}, { from: 'theme_performative', to: 'samvega_pasada', label: 'focuses on effect' }, { from: 'theme_performative', to: 'bhāvanā', label: 'cultivates'},
+        { from: 'theme_hybridity', to: 'vernacularization', label: 'explores' }, { from: 'theme_hybridity', to: 'upaya', label: 'embodies' }, { from: 'theme_hybridity', to: 'bilingual_insc', label: 'example' }, { from: 'theme_hybridity', to: 'sannayas', label: 'example' }, { from: 'theme_hybridity', to: 'sinhala_bauddhaya', label: 'example: print'}, { from: 'theme_hybridity', to: 'siamese_reforms', label: 'example: adaptation to'}, { from: 'theme_hybridity', to: 'pali_imaginaire', label: 'explained by'}, { from: 'theme_hybridity', to: 'reject_purity', label: 'contrasts colonial view via' }, { from: 'theme_hybridity', to: 'pratitya', label: 'reflects'}, { from: 'theme_hybridity', to: 'anicca', label: 'reflects'},
+        { from: 'theme_legacy', to: 'col_taxonomies', label: 'discusses impact of' }, { from: 'theme_legacy', to: 'salvage_mentality', label: 'discusses' }, { from: 'theme_legacy', to: 'textual_fundamentalism', label: 'discusses'}, { from: 'theme_legacy', to: 'decol_method_arg', label: 'necessitates', arrows: 'to'}, { from: 'theme_legacy', to: 'archival_critique', label: 'includes'}, { from: 'theme_legacy', to: 'hikkaduve', label: 'example: resistance'},
+
+        // Decolonized Methodology Connections
+        { from: 'decol_method_arg', to: 'prioritize_function', label: 'proposes' }, { from: 'decol_method_arg', to: 'recenter_theravada', label: 'proposes' }, { from: 'decol_method_arg', to: 'analyze_exclusions', label: 'proposes' }, { from: 'decol_method_arg', to: 'engage_lived_practice', label: 'proposes' }, { from: 'decol_method_arg', to: 'reject_purity', label: 'proposes' },
+        { from: 'prioritize_function', to: 'static_artifact', label: 'counters view of', color: { color: '#77dd77'} }, { from: 'prioritize_function', to: 'performative_recitation', label: 'values'}, { from: 'prioritize_function', to: 'text_veneration', label: 'values'}, // Added methodology links
+        { from: 'recenter_theravada', to: 'col_taxonomies', label: 'replaces', color: { color: '#77dd77'} }, { from: 'recenter_theravada', to: 'tilakkhana', label: 'uses'}, { from: 'recenter_theravada', to: 'pratitya', label: 'uses'}, // Added methodology links
+        { from: 'analyze_exclusions', to: 'textual_fundamentalism', label: 'counters focus of', color: { color: '#77dd77'} }, { from: 'analyze_exclusions', to: 'subhadra_omission', label: 'example'}, { from: 'analyze_exclusions', to: 'cariyapitaka', label: 'example'},
+        { from: 'engage_lived_practice', to: 'static_artifact', label: 'counters view of', color: { color: '#77dd77'} }, { from: 'engage_lived_practice', to: 'bl_eap', label: 'example'}, { from: 'engage_lived_practice', to: 'hikkaduve', label: 'amplifies voice of'}, { from: 'engage_lived_practice', to: 'ajanta_murals', label: 'amplifies context of'}, { from: 'engage_lived_practice', to: 'paritta', label: 'values study of'}, // Added methodology link
+        { from: 'reject_purity', to: 'authenticity_purity', label: 'rejects', color: { color: '#77dd77'} }, { from: 'reject_purity', to: 'theme_hybridity', label: 'validates'},
+
+        // Cited Scholars & Concepts/Examples
+        { from: 'blackburn', to: 'protestant_buddhism', label: 'defines' }, { from: 'blackburn', to: 'textual_fundamentalism', label: 'defines' }, { from: 'blackburn', to: 'sannayas', label: 'analyzes' }, { from: 'blackburn', to: 'prioritize_function', label: 'concept ("practical canon") supports' }, { from: 'blackburn', to: 'subhadra_omission', label: 'notes debate on'}, { from: 'blackburn', to: 'hikkaduve', label: 'discusses'},
+        { from: 'lopez', to: 'salvage_mentality', label: 'defines' },
+        { from: 'thompson', to: 'bilingual_insc', label: 'analyzes ("cosmopolitizing vernacular")' }, { from: 'thompson', to: 'bl_eap', label: 'notes project'},
+        { from: 'scheible', to: 'mahāvamsa', label: 'analyzes (performative aims)' }, { from: 'scheible', to: 'samvega_pasada', label: 'analyzes role of'},
+        { from: 'collins', to: 'pali_imaginaire', label: 'defines' }, { from: 'collins', to: 'khuddakapatha', label: 'notes practice with'}, { from: 'collins', to: 'mps', label: 'notes recitation of'},
+        { from: 'veidlinger', to: 'oral_written', label: 'analyzes transmission'}, { from: 'veidlinger', to: 'colophons', label: 'analyzes'}, { from: 'veidlinger', to: 'milindapanha', label: 'analyzes'}, { from: 'veidlinger', to: 'sāsanavaṃsa', label: 'analyzes'},
+        { from: 'appleton', to: 'jatakas', label: 'analyzes'}, { from: 'appleton', to: 'dhammakaya', label: 'analyzes texts as'}, { from: 'appleton', to: 'paritta', label: 'analyzes'}, { from: 'appleton', to: 'vessantara_jataka', label: 'analyzes performance'}, { from: 'appleton', to: 'cariyapitaka', label: 'analyzes use of'}, { from: 'appleton', to: 'jātakapota', label: 'notes veneration of'},
+        { from: 'swearer', to: 'sannayas', label: 'analyzes'}, { from: 'swearer', to: 'sārathadīpanī', label: 'analyzes'},
+
+        // Specific Text/Practice Links
+        { from: 'paritta', to: 'performative_recitation', label: 'is example of'},
+        { from: 'vessantara_jataka', to: 'jatakas', label: 'is specific example of'}, { from: 'vessantara_jataka', to: 'performative_recitation', label: 'is example of'}, { from: 'vessantara_jataka', to: 'bhāvanā', label: 'is communal'},
+        { from: 'ajanta_murals', to: 'jatakas', label: 'depicts'}, { from: 'ajanta_murals', to: 'visual_engagement', label: 'is example of'}, { from: 'ajanta_murals', to: 'buddhānussati', label: 'aids'},
+        { from: 'cariyapitaka', to: 'jatakas', label: 'based on'}, { from: 'cariyapitaka', to: 'bhāvanā', label: 'guides'},
+        { from: 'sinhala_bauddhaya', to: 'hikkaduve', label: 'published by'}, { from: 'sinhala_bauddhaya', to: 'vernacularization', label: 'is example of'},
+        { from: 'sāsanavaṃsa', to: 'theme_continuum', label: 'illustrates'},
+        { from: 'jātakapota', to: 'jatakas', label: 'is specific example of'}, { from: 'jātakapota', to: 'text_veneration', label: 'is example of'},
+        { from: 'sārathadīpanī', to: 'sannayas', label: 'is specific example of'}, { from: 'sārathadīpanī', to: 'vernacularization', label: 'is example of'}, { from: 'sārathadīpanī', to: 'mps', label: 'is commentary on'}, // Added
+        { from: 'khuddakapatha', to: 'oral_written', label: 'practice illustrates'},
+        { from: 'buddhānussati', to: 'visual_engagement', label: 'aided by'},
+        { from: 'bhāvanā', to: 'theme_performative', label: 'goal of'},
+        { from: 'tipitaka', to: 'saddhammasangaha', label: 'veneration described in', arrows: 'from' }, { from: 'tipitaka', to: 'text_veneration', label: 'object of', arrows: 'to' }, { from: 'tipitaka', to: 'merit_making', label: 'copying generates', arrows: 'to' }, { from: 'tipitaka', to: 'sannayas', label: 'accessed via', arrows: 'from' }, { from: 'tipitaka', to: 'siamese_reforms', label: 'subject of', arrows: 'to' }
+
+    ];
+    const processedEdges = rawEdges.map(edge => { if (edge.title) { edge.description = edge.title; edge.title = undefined; } return edge; });
+    var edges = new vis.DataSet(processedEdges);
+
+    // --- Vis.js Options (Initial Settings - Same as V12) ---
+    const defaultPhysicsConfig = { solver: 'barnesHut', barnesHut: { gravitationalConstant: -30000, centralGravity: 0.1, springLength: 275, springConstant: 0.05, damping: 0.15, avoidOverlap: 0.8 }, minVelocity: 0.75, stabilization: { enabled: true, iterations: 300, updateInterval: 25, onlyDynamicEdges: false, fit: true }, enabled: true };
+    const defaultDamping = defaultPhysicsConfig.barnesHut.damping;
+    const highDamping = 0.7;
+    const groupFontColors = { argument: '#ffffff', concept_theravada: '#ffffff', concept_colonial: '#000000', scholar_cited: '#ffffff', scholar_critiqued: '#ffffff', text_example: '#ffffff', practice: '#000000', methodology: '#ffffff' };
+    var currentOptions = {
+        nodes: { shape: 'dot', size: 18, font: { size: 13, color: '#ffffff' }, borderWidth: 2, shadow: { enabled: true, size: 5, x: 2, y: 2 } },
+        edges: { width: 1.5, color: { color:'#848484', highlight:'#c6c6c6', hover: '#a0a0a0', inherit: false }, smooth: { type: 'continuous', forceDirection: 'none', roundness: 0.5 }, arrows: { to: { enabled: true, scaleFactor: 0.7 } }, font: { size: 11, color: '#ffffff', align: 'middle', strokeWidth: 3, strokeColor: '#2d2d2d' }, shadow: false },
+        physics: defaultPhysicsConfig,
+        interaction: { tooltipDelay: 250, hover: true, hoverConnectedEdges: true, dragNodes: true, zoomView: true, dragView: true },
+        layout: { improvedLayout: true },
+        groups: {
+             argument: { color: { background: '#faccff', border: '#e6a3ff', highlight: { background: '#e6a3ff', border: '#d870ff'} }, shape: 'star', size: 28, font: {size: 15, color: groupFontColors.argument} },
+             concept_theravada: { color: { background: '#bae1ff', border: '#8fc9ff', highlight: { background: '#8fc9ff', border: '#5cadff'} }, shape: 'dot', size: 22, font: {size: 14, color: groupFontColors.concept_theravada} },
+             concept_colonial: { color: { background: '#ffddba', border: '#ffc88f', highlight: { background: '#ffc88f', border: '#ffae5e'} }, shape: 'box', font: {color: groupFontColors.concept_colonial} },
+             scholar_cited: { color: { background: '#ffb3ba', border: '#ff8f9a', highlight: { background: '#ff8f9a', border: '#ff6270'} }, shape: 'ellipse', font: {color: groupFontColors.scholar_cited} },
+             scholar_critiqued: { color: { background: '#ff6961', border: '#e03c31', highlight: { background: '#e03c31', border: '#c21807'} }, shape: 'ellipse', font: {color: groupFontColors.scholar_critiqued} },
+             text_example: { color: { background: '#ffffba', border: '#ffff8f', highlight: { background: '#ffff8f', border: '#faf46a'} }, shape: 'dot', size: 16, font: {color: groupFontColors.text_example} },
+             practice: { color: { background: '#baffc9', border: '#8fffac', highlight: { background: '#8fffac', border: '#69f086'} }, shape: 'box', font: { color: groupFontColors.practice } },
+             methodology: { color: { background: '#add8e6', border: '#87ceeb', highlight: { background: '#87ceeb', border: '#6495ed'} }, shape: 'triangle', size: 20, font: {color: groupFontColors.methodology} }
+        }
+    };
+
+    // --- Initialize Network (Same as V12) ---
+    var container = document.getElementById('mynetwork'); var data = { nodes: nodes, edges: edges }; var network = new vis.Network(container, data, currentOptions); var physicsEnabled = true; var physicsTimeout = null; const hoverInfoPanel = document.getElementById('hover-info'); const detailSidebar = document.getElementById('detail-sidebar');
+
+    // --- Click-to-Focus & Detail Sidebar Logic (Same as V13) ---
+    var allNodes = nodes.get({ returnType: "Object" });
+    network.on("selectNode", function (params) { var selectedNodeId = params.nodes[0]; var selectedNodeData = nodes.get(selectedNodeId); var connectedNodes = network.getConnectedNodes(selectedNodeId); var allNodeIds = Object.keys(allNodes); var nodesToUpdate = []; allNodeIds.forEach(function (nodeId) { if (nodeId !== selectedNodeId && !connectedNodes.includes(nodeId)) { nodesToUpdate.push({ id: nodeId, color: { opacity: 0.3 }, font: { color: 'rgba(255,255,255,0.3)' } }); } else { let originalGroup = allNodes[nodeId].group; let originalOpts = currentOptions.groups[originalGroup] || {}; let originalColor = originalOpts.color || {}; let originalFont = originalOpts.font || {}; let fontColor = groupFontColors[originalGroup] || '#ffffff'; nodesToUpdate.push({ id: nodeId, color: { background: originalColor.background, border: originalColor.border, highlight: originalColor.highlight, opacity: 1 }, font: { size: originalFont.size, color: fontColor, opacity: 1 } }); } }); nodes.update(nodesToUpdate); var edgesToUpdate = []; var allEdges = edges.get(); allEdges.forEach(function(edge) { if (edge.from !== selectedNodeId && edge.to !== selectedNodeId) { edgesToUpdate.push({ id: edge.id, color: { color: 'rgba(132, 132, 132, 0.3)', opacity: 0.3 }, font: { color: 'rgba(255,255,255,0.1)' } }); } else { let originalEdgeColor = rawEdges.find(re => re.id === edge.id)?.color?.color || '#848484'; edgesToUpdate.push({ id: edge.id, color: { color: originalEdgeColor, opacity: 1 }, font: { color: '#ffffff', strokeColor: '#2d2d2d', opacity: 1 } }); } }); edges.update(edgesToUpdate); if (selectedNodeData) { let connectedEdges = network.getConnectedEdges(selectedNodeId); let incoming = []; let outgoing = []; connectedEdges.forEach(edgeId => { let edgeData = edges.get(edgeId); let neighborId = null; let direction = ''; let edgeLabel = edgeData.label ? `<span class="edge-label">(${edgeData.label})</span>` : ''; if (edgeData.from === selectedNodeId) { neighborId = edgeData.to; direction = 'outgoing'; let neighborData = nodes.get(neighborId); if (neighborData) { outgoing.push(`<li><a href="#" data-nodeid="${neighborId}">${neighborData.label.replace(/\n/g, ' ')}</a> ${edgeLabel}</li>`); } } else { neighborId = edgeData.from; direction = 'incoming'; let neighborData = nodes.get(neighborId); if (neighborData) { incoming.push(`<li><a href="#" data-nodeid="${neighborId}">${neighborData.label.replace(/\n/g, ' ')}</a> ${edgeLabel}</li>`); } } }); let sidebarHTML = `<h3>${selectedNodeData.label.replace(/\n/g, '<br>')}</h3>`; if (selectedNodeData.description) { sidebarHTML += `<p>${selectedNodeData.description.replace(/\n/g, '<br>')}</p>`; } if (outgoing.length > 0) { sidebarHTML += `<h4>Connections From This Node:</h4><ul>${outgoing.join('')}</ul>`; } if (incoming.length > 0) { sidebarHTML += `<h4>Connections To This Node:</h4><ul>${incoming.join('')}</ul>`; } detailSidebar.innerHTML = sidebarHTML; detailSidebar.classList.add('open'); detailSidebar.querySelectorAll('a[data-nodeid]').forEach(link => { link.addEventListener('click', (event) => { event.preventDefault(); const targetNodeId = event.target.getAttribute('data-nodeid'); network.selectNodes([targetNodeId]); network.focus(targetNodeId, { scale: network.getScale(), animation: true }); }); }); } else { detailSidebar.innerHTML = ''; detailSidebar.classList.remove('open'); } });
+    network.on("deselectNode", function (params) { var nodesToUpdate = []; var allNodeIds = Object.keys(allNodes); allNodeIds.forEach(function (nodeId) { let originalGroup = allNodes[nodeId].group; let originalOpts = currentOptions.groups[originalGroup] || {}; let originalColor = originalOpts.color || {}; let originalFont = originalOpts.font || {}; let fontColor = groupFontColors[originalGroup] || '#ffffff'; nodesToUpdate.push({ id: nodeId, color: { background: originalColor.background, border: originalColor.border, highlight: originalColor.highlight, opacity: 1 }, font: { size: originalFont.size, color: fontColor, opacity: 1 } }); }); nodes.update(nodesToUpdate); var edgesToUpdate = []; var allEdges = edges.get(); allEdges.forEach(function(edge) { let originalEdgeColor = rawEdges.find(re => re.id === edge.id)?.color?.color || '#848484'; edgesToUpdate.push({ id: edge.id, color: { color: originalEdgeColor, opacity: 1 }, font: { color: '#ffffff', strokeColor: '#2d2d2d', opacity: 1 } }); }); edges.update(edgesToUpdate); detailSidebar.classList.remove('open'); detailSidebar.innerHTML = ''; });
+
+    // --- Event Listeners for Fixing/Unfixing Nodes (Same as V8) ---
+    network.on("dragEnd", function (params) { if (params.nodes.length > 0) { nodes.update({ id: params.nodes[0], fixed: { x: true, y: true }}); } });
+    network.on("doubleClick", function (params) { if (params.nodes.length > 0) { let nodeId = params.nodes[0]; nodes.update({ id: nodeId, fixed: { x: false, y: false }}); if (!physicsEnabled) { physicsEnabled = true; network.setOptions({ physics: { enabled: true, barnesHut: { damping: highDamping } } }); } else { network.setOptions({ physics: { barnesHut: { damping: highDamping } } }); } network.startSimulation(); clearTimeout(physicsTimeout); physicsTimeout = setTimeout(() => { physicsEnabled = false; network.setOptions({ physics: { enabled: false, barnesHut: { damping: defaultDamping } } }); console.log("Physics disabled after unfix adjustment."); }, 1000); } });
+
+    // --- Disable physics after initial stabilization (Same as V8) ---
+    network.once("stabilizationIterationsDone", function () { physicsEnabled = false; network.setOptions( { physics: { enabled: false } } ); console.log("Initial stabilization complete. Physics disabled."); });
+
+    // --- Hover Info Panel Logic (Same as V8) ---
+    network.on("hoverNode", function(params) { const nodeId = params.node; const nodeData = nodes.get(nodeId); if (nodeData && nodeData.description) { const formattedText = nodeData.description.replace(/\n/g, '<br>'); hoverInfoPanel.innerHTML = formattedText; hoverInfoPanel.classList.add('visible'); } else { hoverInfoPanel.innerHTML = ''; hoverInfoPanel.classList.remove('visible'); } });
+    network.on("hoverEdge", function(params) { const edgeId = params.edge; const edgeData = edges.get(edgeId); if (edgeData && edgeData.description) { const formattedText = edgeData.description.replace(/\n/g, '<br>'); hoverInfoPanel.innerHTML = formattedText; hoverInfoPanel.classList.add('visible'); } else { hoverInfoPanel.innerHTML = ''; hoverInfoPanel.classList.remove('visible'); } });
+    network.on("blurNode", function(params) { hoverInfoPanel.innerHTML = ''; hoverInfoPanel.classList.remove('visible'); });
+    network.on("blurEdge", function(params) { hoverInfoPanel.innerHTML = ''; hoverInfoPanel.classList.remove('visible'); });
+
+    // --- Settings Menu Logic (Same as V12 - Per-Group Font Color) ---
+    const menuToggle = document.getElementById('menu-toggle'); const settingsMenu = document.getElementById('settings-menu'); const nodeFontSizeInput = document.getElementById('node-font-size'); const edgeFontSizeInput = document.getElementById('edge-font-size');
+    const edgeFontColorInput = document.getElementById('edge-font-color'); const groupSelect = document.getElementById('group-select'); const groupBgColorInput = document.getElementById('group-bg-color'); const groupBorderColorInput = document.getElementById('group-border-color');
+    const groupFontColorInput = document.getElementById('group-font-color');
+    const tabButtons = settingsMenu.querySelectorAll('.tab-button');
+    const tabPanes = settingsMenu.querySelectorAll('.tab-pane');
+
+    menuToggle.addEventListener('click', () => { settingsMenu.classList.toggle('open'); });
+    nodeFontSizeInput.addEventListener('change', (e) => { network.setOptions({ nodes: { font: { size: parseInt(e.target.value) } } }); });
+    edgeFontSizeInput.addEventListener('change', (e) => { network.setOptions({ edges: { font: { size: parseInt(e.target.value) } } }); });
+    edgeFontColorInput.addEventListener('input', (e) => { network.setOptions({ edges: { font: { color: e.target.value } } }); });
+
+    // --- Tab Switching Logic ---
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            tabPanes.forEach(pane => {
+                if (pane.id === targetTab) { pane.classList.add('active'); } else { pane.classList.remove('active'); }
+            });
+        });
+    });
+
+    // --- Group Color/Font Update Logic ---
+    function updateGroupColorPickers(selectedGroup) {
+        let groupOptions = network.getOptions().groups[selectedGroup];
+        let bgColor = '#cccccc'; let borderColor = '#aaaaaa';
+        let fontColor = groupFontColors[selectedGroup] || '#ffffff';
+        if (groupOptions && groupOptions.color) { bgColor = groupOptions.color.background || bgColor; borderColor = groupOptions.color.border || borderColor; }
+        if (groupOptions && groupOptions.font && groupOptions.font.color) { fontColor = groupOptions.font.color; }
+        groupBgColorInput.value = bgColor; groupBorderColorInput.value = borderColor; groupFontColorInput.value = fontColor;
+    }
+    groupSelect.addEventListener('change', (e) => { updateGroupColorPickers(e.target.value); });
+
+    groupFontColorInput.addEventListener('input', (e) => {
+        const selectedGroup = groupSelect.value; const newFontColor = e.target.value; groupFontColors[selectedGroup] = newFontColor;
+        let optionsUpdate = { groups: {} }; optionsUpdate.groups[selectedGroup] = { font: { color: newFontColor } };
+        if (currentOptions.groups[selectedGroup]?.font?.size) { optionsUpdate.groups[selectedGroup].font.size = currentOptions.groups[selectedGroup].font.size; }
+        network.setOptions(optionsUpdate);
+    });
+    groupBgColorInput.addEventListener('input', (e) => {
+        const selectedGroup = groupSelect.value; const newColor = e.target.value; let optionsUpdate = { groups: {} }; const currentGroupFontColor = groupFontColors[selectedGroup];
+        optionsUpdate.groups[selectedGroup] = { color: { background: newColor, highlight: { background: newColor } }, font: { color: currentGroupFontColor } };
+        if (currentOptions.groups[selectedGroup]?.font?.size) { optionsUpdate.groups[selectedGroup].font.size = currentOptions.groups[selectedGroup].font.size; }
+        network.setOptions(optionsUpdate);
+        const legendShape = document.querySelector(`.legend-${selectedGroup.replace(/_/g, '-')}-shape`); if (legendShape) { legendShape.style.backgroundColor = newColor; }
+    });
+    groupBorderColorInput.addEventListener('input', (e) => {
+        const selectedGroup = groupSelect.value; const newColor = e.target.value; let optionsUpdate = { groups: {} }; const currentGroupFontColor = groupFontColors[selectedGroup];
+        optionsUpdate.groups[selectedGroup] = { color: { border: newColor, highlight: { border: newColor } }, font: { color: currentGroupFontColor } };
+        if (currentOptions.groups[selectedGroup]?.font?.size) { optionsUpdate.groups[selectedGroup].font.size = currentOptions.groups[selectedGroup].font.size; }
+        network.setOptions(optionsUpdate);
+        const legendShape = document.querySelector(`.legend-${selectedGroup.replace(/_/g, '-')}-shape`); if (legendShape) { legendShape.style.borderColor = newColor; }
+    });
+    updateGroupColorPickers(groupSelect.value);
+
+</script>
+
+</body>
+</html>
